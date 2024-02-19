@@ -19,28 +19,68 @@
   <script src="https://js.arcgis.com/4.19/"></script>
 
   <script>
-    require([
-     "esri/config",
-      "esri/Map",
-      "esri/views/MapView"
-    ], function (esriConfig,Map, MapView) {
+      require(["esri/Map", "esri/layers/FeatureLayer", "esri/views/MapView"], (
+        Map,
+        FeatureLayer,
+        MapView
+      ) => {
+      const url = "https://services.arcgis.com/LBbVDC0hKPAnLRpO/arcgis/rest/services/MegaCities22/FeatureServer";
 
-      esriConfig.apiKey = "AAPKfb3b968ef66d4c848e795b3dd01897e8uTic-7qcXbjlpUVMGReQlWKWAjnWq5pH5r7mLxpcFbX1tfR5Y4bLBPhLOwFOm7NL";
-      const map = new Map({
-        basemap: "arcgis-topographic" // Basemap layer
-      });
+      const template = {
+        title: "City Information",
+        content: "City: {City}, Population: {Pop_2015} million people",
+        fieldInfos: [
+        ]
+      };
 
-      const view = new MapView({
-        map: map,
-        center: [-118.805, 34.027],
-        zoom: 13, // scale: 72223.819286
-        container: "viewDiv",
-        constraints: {
-          snapToZoom: false
+      const renderer = {
+        type: "simple",
+        field: "mag",
+        symbol: {
+          type: "simple-marker",
+          color: "orange",
+          outline: {
+            color: "white"
+          }
+        },
+        visualVariables: [{
+          type: "size",
+          field: "mag",
+          stops: [{
+              value: 2.5,
+              size: "4px"
+            },
+            {
+              value: 8,
+              size: "40px"
+            }
+          ]
+        }]
+      };
+
+      const geojsonLayer = new FeatureLayer({
+        url: url,
+        copyright: "USGS Earthquakes",
+        popupTemplate: template,
+        renderer: renderer,
+        orderBy: {
+          field: "mag"
         }
       });
 
+      const map = new Map({
+        basemap: "gray-vector",
+        layers: [geojsonLayer]
+      });
+
+      const view = new MapView({
+        container: "viewDiv",
+        center: [-168, 46],
+        zoom: 2,
+        map: map
+      });
     });
+
   </script>
 </head>
 
